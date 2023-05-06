@@ -31,16 +31,20 @@ public class SteamController {
 		if (dir.exists() && dir.isDirectory()) {
 			String[] conteudo = pegaMedia(ano, mes, media);
 			File arquivo = new File(path, (nome + ".csv"));
-			FileWriter abrirArq = new FileWriter(arquivo);
-			PrintWriter escreverArq = new PrintWriter(abrirArq);
+			
+			StringBuffer buffer = new StringBuffer();
+			FileWriter fWriter = new FileWriter(arquivo);
+			PrintWriter pWriter = new PrintWriter(fWriter);
 			
 			for (String linha: conteudo) {
 				String[] vetLinha = linha.split(",");
-				escreverArq.write(vetLinha[0] + " ; " + vetLinha[1] + System.getProperty("line.separator"));
+				buffer.append(vetLinha[0] + " ; " + vetLinha[1] + System.getProperty("line.separator"));
 			}
 			
-			escreverArq.close();
-			abrirArq.close();
+			pWriter.write(buffer.toString());
+			pWriter.flush();
+			pWriter.close();
+			fWriter.close();
 			
 		}  else {
 			throw new IOException("Caminho inválido!");
@@ -53,24 +57,22 @@ public class SteamController {
 		File csv = new File(url.getFile());
 		StringBuffer conteudo = new StringBuffer();
 		
-		System.out.println(url.getPath());
-		System.out.println(url.getFile());
 		if(csv.exists() && csv.isFile()) {
-			FileInputStream abreFluxo = new FileInputStream(csv);
-			InputStreamReader leFluxo = new InputStreamReader(abreFluxo);
-			BufferedReader buffer = new BufferedReader(leFluxo);
-			String linha = buffer.readLine();
+			FileInputStream fInStr = new FileInputStream(csv);
+			InputStreamReader InStrReader = new InputStreamReader(fInStr);
+			BufferedReader bufferReader = new BufferedReader(InStrReader);
+			String linha = bufferReader.readLine();
 			
 			while (linha != null) {
 				String[] vetLinha = linha.split(",");
 				if (ano.equals(vetLinha[1]) && mes.equals(vetLinha[2]) && media <= (Double.parseDouble(vetLinha[3]))) {
 					conteudo.append(vetLinha[0] + "," + vetLinha[3] + System.getProperty("line.separator"));
 				}
-				linha = buffer.readLine();
+				linha = bufferReader.readLine();
 			}
-			buffer.close();
-			leFluxo.close();
-			abreFluxo.close();
+			bufferReader.close();
+			InStrReader.close();
+			fInStr.close();
 		}
 		if (conteudo.length() == 0) {
 			JOptionPane.showMessageDialog(null, "Busca não retornou resultados");
